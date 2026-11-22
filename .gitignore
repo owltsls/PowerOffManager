@@ -1,0 +1,38 @@
+# ===== .NET 构建产物 =====
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ===== 打包与分发产物 =====
+dist/
+publish/
+*.exe
+*.msi
+*.appx
+
+# ===== 本地 SDK / 工具链（体积大，不入库） =====
+.dotnet-sdk/
+sdk.zip
+dotnet-install.sh
+
+# ===== 测试与临时文件 =====
+*.log
+*.tmp
+*.cache
+Thumbs.db
+.DS_Store
+__pycache__/
+*.pyc
+
+# ===== IDE 配置 =====
+.vs/
+.vscode/
+.idea/
+
+# ===== 本工作区私有数据 =====
+.workbuddy/

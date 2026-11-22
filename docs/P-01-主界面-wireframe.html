@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>准点·定时关机管家 — 原型线稿（Wireframe）</title>
+<style>
+  :root{
+    --bg:#F4F5F7; --paper:#FFFFFF; --line:#9CA3AF; --line-soft:#D1D5DB;
+    --ph:#E5E7EB; --ph-2:#F3F4F6; --text:#374151; --muted:#6B7280;
+    --accent:#2563EB; --accent-soft:#EFF6FF;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+       font-size:13px;line-height:1.5;padding:28px 20px 60px}
+  .wrap{max-width:1360px;margin:0 auto}
+  header.doc{background:var(--paper);border:1px solid var(--line-soft);padding:20px 24px;margin-bottom:18px}
+  header.doc h1{margin:0 0 6px;font-size:20px;color:#111827}
+  header.doc .meta{color:var(--muted);font-size:12px}
+  .tag{display:inline-block;border:1px solid var(--line);padding:1px 8px;margin-right:6px;
+       color:var(--muted);font-size:11px;border-radius:2px}
+  section{background:var(--paper);border:1px solid var(--line-soft);margin-bottom:18px;padding:18px 20px}
+  section h2{margin:0 0 14px;font-size:15px;color:#111827;border-left:3px solid var(--accent);padding-left:10px}
+  .hint{color:var(--muted);font-size:12px;margin:0 0 14px}
+  /* 画板网格 */
+  .boards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .board{margin:0}
+  .board .cap{font-size:12px;font-weight:600;color:#111827;margin-bottom:8px;
+              display:flex;align-items:center;gap:8px}
+  .board .cap .pid{background:var(--accent);color:#fff;font-size:11px;padding:1px 7px;border-radius:10px}
+  .board .cap .pri{color:var(--muted);font-weight:400;font-size:11px}
+  .canvas{position:relative;background:#fff;border:1px solid var(--line);overflow:hidden}
+  /* 通用线框元素 */
+  .bar{background:var(--ph-2);border-bottom:1px solid var(--line)}
+  .row{display:flex}
+  .box{border:1px solid var(--line);background:#fff;position:relative}
+  .ph{background:var(--ph)}
+  .ph-line{height:11px;background:var(--ph);border-radius:1px}
+  .ph-line.s{width:40%}.ph-line.m{width:62%}.ph-line.l{width:82%}
+  .lbl{position:absolute;font-size:10px;color:var(--muted)}
+  .btn{border:1px solid var(--line);background:#fff;text-align:center;font-size:11px;color:var(--text);
+       display:flex;align-items:center;justify-content:center}
+  .btn.solid{background:#9CA3AF;color:#fff;border-color:#9CA3AF}
+  .num{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;
+       font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;z-index:5;
+       box-shadow:0 0 0 2px #fff}
+  /* P-01 */
+  #p01{height:560px}
+  .titlebar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+  .titlebar .dots{display:flex;gap:6px}.titlebar .dots i{width:8px;height:8px;border:1px solid var(--line);display:block}
+  .tabs{height:40px;display:flex;border-bottom:1px solid var(--line);background:#fff}
+  .tab{flex:1;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line-soft);font-size:12px;color:var(--muted)}
+  .tab.active{background:var(--accent-soft);color:var(--accent);border-bottom:2px solid var(--accent);font-weight:600}
+  .p01-body{padding:16px;height:calc(100% - 74px);display:flex;flex-direction:column;gap:14px}
+  .field{border:1px solid var(--line-soft);padding:10px 12px;height:66px}
+  .field .ft{font-size:10px;color:var(--muted);margin-bottom:8px}
+  .inputs{display:flex;gap:10px;align-items:center}
+  .input{border:1px solid var(--line);height:28px;background:#fff;display:flex;align-items:center;padding:0 8px;font-size:11px;color:var(--muted)}
+  .input.w80{width:80px}.input.w120{width:120px}.input.w160{width:160px}
+  .unit{font-size:11px;color:var(--muted)}
+  .action-row{display:flex;gap:12px;align-items:center}
+  .action-row .sel{border:1px solid var(--line);height:30px;width:200px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:11px;background:#fff}
+  .actions{margin-top:auto;display:flex;gap:10px;align-items:center}
+  .actions .primary{height:34px;width:130px}
+  .actions .ghost{height:34px;width:100px}
+  .status{border:1px dashed var(--line);height:44px;display:flex;align-items:center;padding:0 12px;gap:10px;font-size:11px;color:var(--muted)}
+  .status .dot{width:7px;height:7px;border-radius:50%;background:var(--line);flex:none}
+  .status.live .dot{background:var(--accent)}
+  /* P-02 */
+  #p02{height:270px;display:flex;align-items:center;justify-content:center;background:var(--ph-2)}
+  .modal{width:420px;background:#fff;border:1px solid var(--line);box-shadow:0 0 0 1px rgba(0,0,0,.02)}
+  .modal .mh{height:36px;background:var(--ph-2);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 12px;font-weight:600;font-size:12px}
+  .modal .mb{padding:16px;text-align:center}
+  .modal .big{font-size:22px;color:#111827;font-weight:600;margin:6px 0}
+  .modal .cd{font-size:13px;color:var(--muted)}
+  .modal .mf{border-top:1px solid var(--line-soft);padding:12px;display:flex;gap:8px;justify-content:center}
+  .modal .mf .btn{height:30px;padding:0 12px}
+  /* P-03 */
+  #p03{height:270px;background:var(--ph-2);display:flex;align-items:center;justify-content:center}
+  .tray{margin-left:-180px;width:210px;background:#fff;border:1px solid var(--line)}
+  .tray .th{padding:8px 12px;border-bottom:1px solid var(--line-soft);font-size:11px;color:var(--muted)}
+  .tray .mi{height:34px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #F3F4F6;font-size:12px;gap:8px}
+  .tray .mi i{width:12px;height:12px;border:1px solid var(--line);display:block;flex:none}
+  .tray .mi.dis{color:#B6BBC3}
+  .tray .sep{height:1px;background:var(--line-soft);margin:4px 0}
+  .tray-icon{border:1px solid var(--line);background:#fff;width:34px;height:26px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted)}
+  /* P-04 */
+  #p04{height:480px}
+  .p04-body{padding:16px;display:flex;flex-direction:column;gap:14px;height:calc(100% - 34px)}
+  .setgrp{border:1px solid var(--line-soft);padding:12px}
+  .setgrp .gt{font-size:11px;font-weight:600;color:#111827;margin-bottom:10px}
+  .setrow{display:flex;align-items:center;justify-content:space-between;height:34px;border-bottom:1px dashed var(--line-soft)}
+  .setrow .sk{width:150px;height:10px;background:var(--ph)}
+  .toggle{width:36px;height:18px;border:1px solid var(--line);border-radius:9px;position:relative;background:#fff}
+  .toggle::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--line)}
+  .setrow .sv{width:120px;height:24px;border:1px solid var(--line)}
+  /* 流转图 */
+  .flow svg{display:block;margin:0 auto;max-width:100%}
+  /* 标注表 */
+  table{border-collapse:collapse;width:100%;font-size:12px}
+  th,td{border:1px solid var(--line-soft);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--ph-2);font-weight:600;color:#111827}
+  td .n{color:var(--accent);font-weight:600}
+  footer{color:var(--muted);font-size:11px;text-align:center;padding:10px}
+  @media(max-width:900px){.boards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>准点 · 定时关机管家 — 原型线稿 Wireframe</h1>
+  <div class="meta">
+    <span class="tag">v1.0</span><span class="tag">2026-11-22</span>
+    <span class="tag">低保真 / 灰阶</span><span class="tag">桌面工具窗</span>
+    <span class="tag">4 个 Must 页面</span>
+    <div style="margin-top:8px">本文件为结构确认用线稿，非视觉稿；灰阶为主，仅标注编号与跳转使用蓝色强调。离线可打开、可直接打印。</div>
+  </div>
+</header>
+
+<!-- 页面流转图 -->
+<section class="flow">
+  <h2>页面流转图（Page Flow）</h2>
+  <p class="hint">实线 = 主流程；虚线 = 返回 / 取消路径。标注编号对应下方《标注说明表》。</p>
+  <svg viewBox="0 0 1240 250" width="1240" height="250" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#9CA3AF"/></marker>
+    </defs>
+    <g font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#374151">
+      <!-- nodes -->
+      <g>
+        <rect x="10" y="60" width="120" height="44" fill="#F3F4F6" stroke="#9CA3AF"/>
+        <text x="70" y="78" text-anchor="middle">启动 / 托盘恢复</text>
+        <text x="70" y="94" text-anchor="middle" font-size="10" fill="#6B7280">START</text>
+      </g>
+      <g>
+        <rect x="180" y="60" width="150" height="44" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2"/>
+        <text x="255" y="79" text-anchor="middle">P-01 主界面</text>
+        <text x="255" y="95" text-anchor="middle" font-size="10" fill="#6B7280">任务配置</text>
+      </g>
+      <g>
+        <rect x="390" y="60" width="150" height="44" fill="#EFF6FF" stroke="#2563EB"/>
+        <text x="465" y="79" text-anchor="middle">任务激活 · 托盘常驻</text>
+        <text x="465" y="95" text-anchor="middle" font-size="10" fill="#2563EB">RUN</text>
+      </g>
+      <g>
+        <rect x="600" y="60" width="150" height="44" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2"/>
+        <text x="675" y="79" text-anchor="middle">P-02 倒计时提醒</text>
+        <text x="675" y="95" text-anchor="middle" font-size="10" fill="#6B7280">置顶弹窗</text>
+      </g>
+      <g>
+        <rect x="820" y="60" width="150" height="44" fill="#F3F4F6" stroke="#9CA3AF"/>
+        <text x="895" y="79" text-anchor="middle">执行电源动作</text>
+        <text x="895" y="95" text-anchor="middle" font-size="10" fill="#6B7280">ACT</text>
+      </g>
+      <!-- bottom nodes -->
+      <g>
+        <rect x="390" y="170" width="150" height="40" fill="#FFFFFF" stroke="#9CA3AF"/>
+        <text x="465" y="195" text-anchor="middle">P-03 托盘菜单</text>
+      </g>
+      <g>
+        <rect x="600" y="170" width="150" height="40" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2"/>
+        <text x="675" y="195" text-anchor="middle">P-04 设置 / 偏好</text>
+      </g>
+      <g>
+        <rect x="180" y="170" width="150" height="40" fill="#F3F4F6" stroke="#9CA3AF"/>
+        <text x="255" y="195" text-anchor="middle">结束 / 机器状态改变</text>
+      </g>
+      <!-- edges -->
+      <g stroke="#9CA3AF" fill="none" marker-end="url(#ar)">
+        <line x1="130" y1="82" x2="176" y2="82"/>
+        <line x1="330" y1="82" x2="386" y2="82"/>
+        <line x1="540" y1="82" x2="596" y2="82"/>
+        <line x1="750" y1="82" x2="816" y2="82"/>
+        <line x1="465" y1="104" x2="465" y2="166"/>
+        <line x1="675" y1="104" x2="675" y2="166"/>
+      </g>
+      <g stroke="#9CA3AF" fill="none" stroke-dasharray="4 3" marker-end="url(#ar)">
+        <path d="M600,105 Q520,130 330,100"/>
+        <path d="M600,190 Q400,220 330,195"/>
+        <path d="M390,190 Q300,160 330,110"/>
+        <path d="M750,190 Q720,140 750,108"/>
+        <path d="M895,104 Q760,30 255,62"/>
+      </g>
+      <!-- edge labels -->
+      <g font-size="10" fill="#6B7280">
+        <text x="352" y="74">选模式并启动</text>
+        <text x="548" y="74">到点提醒</text>
+        <text x="756" y="74">执行/归零</text>
+        <text x="606" y="126" fill="#2563EB">取消 → P-01</text>
+        <text x="612" y="150" fill="#2563EB">推迟 N 分钟 → RUN</text>
+        <text x="474" y="146">右键</text>
+        <text x="686" y="146">设置</text>
+        <text x="240" y="146">查看状态</text>
+      </g>
+    </g>
+  </svg>
+</section>
+
+<!-- 画板 -->
+<section>
+  <h2>关键页面线稿（Key Screens）</h2>
+  <p class="hint">窗口尺寸按桌面工具实际大小绘制（主界面 900×560 画板 / 提醒窗 420×270 / 托盘菜单 / 设置 480 高）。占位文字用短横，按钮与标题为功能性文字。</p>
+  <div class="boards">
+
+    <!-- P-01 -->
+    <figure class="board">
+      <div class="cap"><span class="pid">P-01</span> 主界面 / 任务配置 <span class="pri">桌面工具窗 · Must</span></div>
+      <div class="canvas" id="p01">
+        <div class="bar titlebar">
+          <div style="font-size:12px;font-weight:600;color:#111827">准点 · 定时关机管家</div>
+          <div class="dots"><i></i><i></i><i></i></div>
+        </div>
+        <div class="tabs">
+          <div class="tab active">⏱ 倒计时</div>
+          <div class="tab">🕒 时间点/周期</div>
+          <div class="tab">💤 空闲检测</div>
+          <div class="tab">📌 进程触发</div>
+        </div>
+        <div class="p01-body">
+          <div class="field">
+            <div class="ft">触发参数 — 倒计时模式</div>
+            <div class="inputs">
+              <div class="input w80">10</div><span class="unit">分钟</span>
+              <div class="input w80">0</div><span class="unit">秒</span>
+              <span style="margin-left:auto;font-size:10px;color:#6B7280">范围 1–1440 分钟</span>
+            </div>
+            <div class="num" style="right:-8px;top:16px">②</div>
+          </div>
+          <div class="num" style="left:2px;top:-2px">①</div>
+          <div class="field" style="height:auto">
+            <div class="ft">时间点 / 周期（切到对应页签时显示）</div>
+            <div class="inputs" style="flex-wrap:wrap;gap:8px">
+              <div class="input w120">23:30</div>
+              <span class="unit">重复：</span>
+              <div class="input w160">每天 ⌄</div>
+              <span class="unit" style="font-size:10px">或勾选 一 二 三 四 五 六 日</span>
+            </div>
+          </div>
+          <div class="field" style="height:auto">
+            <div class="ft">进程触发（切到对应页签时显示）</div>
+            <div class="inputs">
+              <div class="input w160">下载器.exe</div>
+              <span class="unit">退出后延迟</span>
+              <div class="input w80">0</div><span class="unit">分钟</span>
+            </div>
+          </div>
+          <div class="action-row">
+            <span class="unit" style="width:70px">执行动作</span>
+            <div class="sel"><span>关机（Shutdown）</span><span>⌄</span></div>
+            <div class="num" style="right:-26px;top:4px">③</div>
+            <label style="font-size:11px;color:#6B7280;margin-left:auto">
+              <span style="display:inline-block;width:11px;height:11px;border:1px solid var(--line);vertical-align:-1px"></span> 强制关闭程序
+            </label>
+          </div>
+          <div class="status live" id="st">
+            <span class="dot"></span>
+            <span>激活任务：倒计时 10 分钟 → 关机　|　剩余 09:58</span>
+            <div class="num" style="right:-8px;top:10px">⑤</div>
+          </div>
+          <div class="actions">
+            <div class="btn solid primary">取消任务</div>
+            <div class="btn ghost">立即执行</div>
+            <div class="num" style="right:-8px;top:6px">④</div>
+            <span style="margin-left:auto;font-size:10px;color:#9CA3AF">最小化到托盘运行</span>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <!-- P-02 -->
+    <figure class="board">
+      <div class="cap"><span class="pid">P-02</span> 倒计时提醒弹窗 <span class="pri">置顶弹窗 · Must</span></div>
+      <div class="canvas" id="p02">
+        <div class="modal">
+          <div class="mh">⏰ 即将执行：关机</div>
+          <div class="mb">
+            <div style="font-size:11px;color:var(--muted)">系统将在以下时间后执行 <b>关机</b></div>
+            <div class="big" id="cd">00:60</div>
+            <div class="cd">当前时间 17:55　·　任务来源：倒计时定时</div>
+            <div class="num" style="right:8px;top:-6px">⑥</div>
+          </div>
+          <div class="mf">
+            <div class="btn solid">立即执行</div>
+            <div class="btn">取消</div>
+            <div class="btn">推迟 5 分</div>
+            <div class="btn">推迟 10 分</div>
+            <div class="btn">推迟 30 分</div>
+            <div class="num" style="right:6px;top:-8px">⑦</div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <!-- P-03 -->
+    <figure class="board">
+      <div class="cap"><span class="pid">P-03</span> 系统托盘菜单 <span class="pri">右键菜单 · Must</span></div>
+      <div class="canvas" id="p03">
+        <div class="tray-icon">GM</div>
+        <div class="tray">
+          <div class="th">准点 · 定时关机管家</div>
+          <div class="mi"><i></i> 查看状态 / 剩余时间</div>
+          <div class="mi"><i></i> 打开主界面</div>
+          <div class="sep"></div>
+          <div class="mi dis"><i></i> 取消当前任务（无任务时置灰）</div>
+          <div class="mi"><i></i> 暂停提醒 1 小时</div>
+          <div class="sep"></div>
+          <div class="mi"><i></i> 设置…</div>
+          <div class="mi"><i></i> 退出</div>
+          <div class="num" style="right:-8px;top:60px">⑧</div>
+        </div>
+      </div>
+    </figure>
+
+    <!-- P-04 -->
+    <figure class="board">
+      <div class="cap"><span class="pid">P-04</span> 设置 / 偏好 <span class="pri">桌面工具窗 · Must</span></div>
+      <div class="canvas" id="p04">
+        <div class="bar titlebar">
+          <div style="font-size:12px;font-weight:600;color:#111827">设置</div>
+          <div class="dots"><i></i><i></i><i></i></div>
+        </div>
+        <div class="p04-body">
+          <div class="setgrp">
+            <div class="gt">常规</div>
+            <div class="setrow"><div class="sk"></div><div class="toggle"></div></div>
+            <div class="setrow"><div class="sk"></div><div class="sv"></div></div>
+            <div class="setrow"><div class="sk"></div><div class="toggle"></div></div>
+            <div class="num" style="right:-8px;top:30px">⑨</div>
+          </div>
+          <div class="setgrp">
+            <div class="gt">提醒与贪睡</div>
+            <div class="setrow"><div class="sk"></div><div class="sv"></div></div>
+            <div class="setrow"><div class="sk"></div><div class="sv"></div></div>
+          </div>
+          <div class="setgrp">
+            <div class="gt">日志与诊断</div>
+            <div class="setrow"><div class="sk"></div><div class="toggle"></div></div>
+            <div class="setrow"><div class="sk"></div><div class="sv"></div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:auto">
+            <div class="btn solid" style="width:90px;height:30px">保存</div>
+            <div class="btn" style="width:90px;height:30px">取消</div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+  </div>
+</section>
+
+<!-- 标注说明表 -->
+<section>
+  <h2>标注说明表（Annotations）</h2>
+  <table>
+    <thead><tr><th style="width:56px">编号</th><th style="width:90px">页面</th><th style="width:160px">组件 / 区域</th><th>交互规则</th><th>业务规则</th><th>边界状态</th></tr></thead>
+    <tbody>
+      <tr><td class="n">①</td><td>P-01</td><td>模式选择页签</td><td>点击切换 4 种模式</td><td>切换时若已有激活任务，弹确认后替换（F-09 / R-04）</td><td>有激活任务时页签旁显示提示点</td></tr>
+      <tr><td class="n">②</td><td>P-01</td><td>参数配置区</td><td>按模式显示不同表单输入</td><td>倒计时 1–1440 分；时间点 HH:mm；空闲 1–240 分；进程名+延迟 0–60 分</td><td>超范围输入标红并禁用「启动」</td></tr>
+      <tr><td class="n">③</td><td>P-01</td><td>执行动作下拉框</td><td>选择 7 种电源动作之一</td><td>关机/重启/睡眠/休眠/注销/锁屏/关显示器；休眠在不支持机器置灰</td><td>权限不足时显示提示文案（R-06）</td></tr>
+      <tr><td class="n">④</td><td>P-01</td><td>启动 / 取消按钮</td><td>启动激活任务；点击后变「取消任务」</td><td>单任务互斥；启动后进入 RUN 态并最小化托盘</td><td>无有效参数时启动按钮禁用</td></tr>
+      <tr><td class="n">⑤</td><td>P-01</td><td>状态条</td><td>展示当前任务摘要与剩余时间</td><td>空闲/进程模式显示「监测中」而非倒计时</td><td>无任务显示「当前无任务」空态</td></tr>
+      <tr><td class="n">⑥</td><td>P-02</td><td>提醒弹窗主体</td><td>到点自动弹出并置顶</td><td>显示动作、剩余秒数、当前时间；默认 60 秒可设 30–300</td><td>RDP 会话下追加额外确认（F-15 / R-12）</td></tr>
+      <tr><td class="n">⑦</td><td>P-02</td><td>推迟按钮组</td><td>点击推迟 5/10/30 分钟</td><td>重新进入 RUN 态并再次提醒（F-08）</td><td>连续推迟上限 10 次，防无限拖延</td></tr>
+      <tr><td class="n">⑧</td><td>P-03</td><td>托盘右键菜单</td><td>右键托盘图标展开</td><td>查看状态 / 打开主界面 / 取消 / 暂停提醒 / 设置 / 退出</td><td>无任务时「取消当前任务」置灰</td></tr>
+      <tr><td class="n">⑨</td><td>P-04</td><td>设置项与开关</td><td>勾选开关、填写数值、保存生效</td><td>自启写启动文件夹快捷方式；日志本地可导出（F-11~F-13）</td><td>无写权限时提示降级路径</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 状态覆盖 -->
+<section>
+  <h2>状态覆盖清单（State Coverage）</h2>
+  <table>
+    <thead><tr><th style="width:110px">状态</th><th>出现位置与表现</th></tr></thead>
+    <tbody>
+      <tr><td>正常态</td><td>P-01 有激活任务时状态条显示剩余时间；P-02 弹出倒计时提醒；P-03 托盘图标带倒计时悬浮提示。</td></tr>
+      <tr><td>空态</td><td>P-01 无任务时状态条显示「当前无任务」；P-03 取消任务项置灰。</td></tr>
+      <tr><td>加载/监测态</td><td>空闲检测与进程触发模式：状态条显示「监测中 · 已运行 X 分钟」，无倒计时数字。</td></tr>
+      <tr><td>错误态</td><td>休眠不支持/权限不足/进程不存在：字段旁红色提示 + 明确文案（R-09）；启动按钮禁用。</td></tr>
+      <tr><td>成功态</td><td>操作日志记录「任务已于 HH:mm 执行 关机」；设置保存后提示「已保存」。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>准点 · 定时关机管家 PRD 附属线稿　|　低保真结构确认稿　|　2026-11-22</footer>
+</div>
+</body>
+</html>
